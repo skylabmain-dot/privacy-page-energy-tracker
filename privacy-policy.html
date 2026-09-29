@@ -142,17 +142,19 @@
 
 <p class="eyebrow">Privacy</p>
 <h1>Privacy Policy</h1>
-<p class="meta">Helio (Energy tracker) for iPhone, Apple&nbsp;Watch and Mac · Effective 2 August 2026</p>
+<p class="meta">Helio (Energy tracker) for iPhone, Apple&nbsp;Watch and Mac · Effective 29 September 2026</p>
 
-<p class="lead">This policy describes what Helio stores, where it goes, and what it does not do. It is written from the app's actual behaviour rather than from a template, and it is meant to be read in full — it is short on purpose.</p>
+<p class="lead">This policy describes what Helio stores, where it goes, who processes it, and how to delete it. It is written from the app's actual behaviour rather than from a template.</p>
 
 <div class="card">
   <p><strong>The short version.</strong></p>
   <ul>
-    <li>Helio needs no account. On first launch it creates an anonymous account so your data has somewhere to live; you are never asked for a name, an email or anything else.</li>
-    <li>Your habits, your daily logs and your notes are stored under that account on Google's Firebase, and cached on your device.</li>
-    <li>There are no ads, no advertising identifier, no third-party tracking or attribution SDKs, and nothing is ever sold or shared for marketing.</li>
-    <li>You can delete everything from inside the app, permanently.</li>
+    <li>Helio needs no account. On first launch it creates an anonymous account so your data has somewhere to live. Signing in with Apple or Google is optional.</li>
+    <li>Your habits, daily logs, notes and AI conversations are stored under that account on Google's Firebase, and cached on your device.</li>
+    <li>If you use the AI assistant, what you ask and the relevant part of your habit data are sent to Anthropic (Claude) to produce an answer. Voice input is sent to OpenAI to be turned into text and speech. Photos you attach are sent to Anthropic. Helio does not keep your audio or your photos.</li>
+    <li>Subscriptions are sold and billed by Apple. Helio never sees your payment details.</li>
+    <li>Helio uses Firebase Analytics and Crashlytics. There are no ads, no advertising identifier, no tracking across other companies' apps, and nothing is sold. Usage analytics can be switched off in Settings.</li>
+    <li>You can delete your account and its data from inside the app.</li>
   </ul>
 </div>
 
@@ -162,124 +164,180 @@
 <h2>2. Your account and identity</h2>
 <p>Helio uses Firebase Authentication (Google).</p>
 <ul>
-  <li><strong>By default you are anonymous.</strong> On first launch the app signs you in anonymously. That produces a random user identifier (a UID) which exists only so that your data can be filed somewhere. It is not linked to your name, your email, your phone number or your Apple ID.</li>
-  <li><strong>Sign-in is optional</strong> and exists for one reason: to make the same data available on more than one device. If you choose <em>Sign in with Apple</em> or <em>Sign in with Google</em>, the provider passes an account identifier and, depending on what you allow, an email address and a display name to Firebase Authentication. If you use Apple's "Hide My Email", the app only ever sees the relay address Apple generates. Helio never sees or stores your password.</li>
+  <li><strong>By default you are anonymous.</strong> On first launch the app signs you in anonymously. That produces a random user identifier (a UID) which exists so that your data can be filed somewhere. It is not linked to your name, your email, your phone number or your Apple ID.</li>
+  <li><strong>Sign-in is optional</strong> and lets the same data appear on more than one device. If you choose <em>Sign in with Apple</em> or <em>Sign in with Google</em>, the provider passes an account identifier and, depending on what you allow, an email address and a name to Firebase Authentication. If you use Apple's "Hide My Email", the app only ever sees the relay address Apple generates. Helio never sees or stores your password.</li>
   <li>The Mac companion requires sign-in, because it talks to the server directly and an anonymous session there would create a second, empty account.</li>
 </ul>
 
-<h2>3. What Helio stores about your use</h2>
-<p>Everything below lives under <code>users/{your uid}</code> in Google Cloud Firestore, readable and writable only by that account:</p>
+<h2>3. What Helio stores</h2>
+<p>Everything below lives under <code>users/{your uid}</code> in Google Cloud Firestore. The app on your device can read only its own account's data.</p>
 <ul>
-  <li><code>habits</code> — the habits you create: title, optional description, whether it is an Inspire or an Exhaust, its energy value, icon and colour, schedule, and reminder settings.</li>
+  <li><code>habits</code> — the habits you create: title, optional description, type, energy value, icon and colour, schedule, and reminder settings.</li>
   <li><code>dailyLogs</code> — one document per calendar day, holding what you logged that day and the day's score.</li>
   <li><code>notes</code> — the free text you write on a habit for a given day.</li>
   <li><code>habitVotes</code> — your "useful" / "not for me" votes on the suggested-habit catalogue.</li>
-  <li><code>meta</code> — your app settings (appearance, language, day structure, energy limits, display toggles) and your bookmarked suggestions.</li>
-  <li><code>aiChatMessages</code>, <code>aiInsights</code>, <code>aiUsage</code> — reserved for the AI assistant described in section 10. That feature is switched off in this version, so nothing is written to them. They can only ever be written by our server, never by the app on your device.</li>
+  <li><code>meta</code> — your app settings and your bookmarked suggestions.</li>
+  <li><code>aiChats</code>, <code>aiChatMessages</code> — your conversations with the AI assistant (section 4). They are written only by our server.</li>
+  <li><code>aiInsights</code> — the most recent set of AI insight cards generated for you.</li>
+  <li><code>aiUsage</code> — monthly counters used to enforce your plan's AI limits: number of requests, tokens used, voice seconds and "Discuss with AI" uses. Counts only, no content.</li>
+  <li><code>entitlement</code> — your current plan: its tier, the App&nbsp;Store product and transaction identifier behind it, its expiry, and whether it comes from a purchase, a promotional code or a complimentary grant.</li>
+  <li>On the account document itself, when usage analytics is on: the Apple Search Ads attribution token described in section 7, and the date it was recorded.</li>
 </ul>
-<p>When you vote on a suggested habit, the app also increments a shared, app-wide counter of likes, dislikes and additions for that suggestion. That counter is a number only — it carries no user identifier and nothing about you can be read back out of it.</p>
+<p>When you vote on a suggested habit, the app also increments a shared, app-wide counter for that suggestion. That counter is a number only and carries nothing about you.</p>
 
 <h3>Copies kept on your device</h3>
 <ul>
   <li>An offline cache of the data above, so the app works without a connection.</li>
-  <li>A small local copy of a few settings (appearance, language, whether the intro has been seen, and whether you have agreed to the "Discuss with AI" feature) so the app can start correctly before it reaches the network.</li>
-  <li>A shared container that the home screen widgets, the Apple Watch app and the Mac app read: today's ring, your habit list, and taps that have not yet reached the phone. It is a display cache and a queue, never the record of truth.</li>
+  <li>A small local copy of a few settings so the app can start correctly before it reaches the network, including your answers to the AI consent screens and the analytics switch.</li>
+  <li>A shared container that the home screen widgets, the Apple Watch app and the Mac app read: today's ring, your habit list, and taps that have not yet reached the phone.</li>
 </ul>
 <p>Deleting the app removes all of this from the device.</p>
 
-<h2>4. Analytics</h2>
-<p>The iPhone app includes Firebase Analytics. The companions — widgets, Apple Watch, Mac — contain no analytics at all.</p>
-<p>The app itself sends exactly five events, all of them about the first-launch intro, and none of them containing anything you typed:</p>
+<h2>4. The AI assistant</h2>
+<p>The AI tab offers insight cards about your own history and a chat you can type into, dictate into, attach a photo to, or talk to by voice. How much of it you can use depends on your plan (section 6). Before anything is sent, the tab shows a consent screen explaining that your habit data will be sent to Anthropic; nothing is sent until you agree.</p>
+
+<h3>What is sent to Anthropic</h3>
+<p>The assistant is Anthropic's Claude, called from our Cloud Functions — your device never talks to Anthropic directly. To answer, our server sends Anthropic:</p>
 <ul>
-  <li><code>onboarding_page_viewed</code> — page number and page name</li>
-  <li><code>onboarding_skipped</code> — page number</li>
-  <li><code>onboarding_completed</code> — how it ended (finished, skipped, or via sign-in)</li>
-  <li><code>onboarding_sign_in_tapped</code> — page number</li>
-  <li><code>onboarding_sign_in_succeeded</code></li>
+  <li>your message, and the recent messages of the same conversation so it has context;</li>
+  <li>the part of your data needed for the question: habit names and settings, what you logged and when, scores, and — when a question concerns particular days — the notes you wrote on those days;</li>
+  <li>a photo, if you attached one (see below).</li>
 </ul>
-<p>Each also carries whether the intro was the real first launch or a replay from Settings. Every parameter is a whole number or a short fixed keyword. No habit names, no notes, no free text, no personal data ever leaves the app through analytics.</p>
-<p>Separately from those events, the Firebase Analytics SDK collects a standard set of automatic events and device properties defined by Google — for example installs, session starts, app version, device model and coarse region. That set is Google's, not ours; we neither extend nor configure it. See Firebase's own <a href="https://firebase.google.com/support/privacy">privacy documentation</a> for what it contains.</p>
-<p>Helio does not use the advertising identifier (IDFA), shows no App Tracking Transparency prompt, and declares no tracking in its App&nbsp;Store privacy manifest.</p>
+<p>Insight cards are generated the same way from a summary of your habits and logs. The assistant is read-only: it can look at your data but cannot log, change or delete anything.</p>
 
-<h2>5. Crash reports and error diagnostics</h2>
-<p>The app links Firebase Crashlytics, and crash collection is enabled at launch. When the app crashes or hits a handled error, Crashlytics records the technical detail: the stack trace, the app version, the device model and OS version, and a small set of keys we attach so a report can be located — the screen or operation involved, your user identifier, and, where relevant, the internal identifier of a habit or a date key such as <code>2026-08-02</code>. Habit titles and note text are never attached.</p>
+<h3>Photos</h3>
+<p>You can attach a photo from your library (through Apple's photo picker, which gives the app only the photo you choose) or take one with the camera, which asks for camera permission. The photo is resized on your device and sent to our server, which passes it to Anthropic with your message and then discards it. Helio does not store the photo: the saved conversation records only that a photo was attached. A small preview is kept in memory while the app is open and is gone when it closes.</p>
 
-<h2>6. The developer's error channel</h2>
-<p>Because Helio is run by one person, non-fatal errors are also mirrored to a private Telegram channel that only the developer reads, so problems are noticed the day they happen. What is sent there:</p>
+<h3>Dictation and voice chat</h3>
+<p>Both require microphone permission and only run when you start them.</p>
 <ul>
-  <li><strong>Errors:</strong> the system error description, the operation it came from, and the same identifiers as above (user identifier, habit identifier, date key), plus a timestamp, the app version, the iOS version and the device model.</li>
-  <li><strong>Crash notices:</strong> a line on the next launch saying the previous session crashed, with app version, iOS version and device model.</li>
-  <li><strong>Account events:</strong> that a sign-in, sign-out or account deletion happened, with the provider name and the user identifier.</li>
-  <li><strong>Feedback you send:</strong> if you use <em>Settings → Send Feedback</em>, the message you wrote is delivered here, together with your user identifier, app version, iOS version and device model. This channel is how your message reaches a human.</li>
+  <li><strong>Dictation</strong> records a short clip on your device and sends it to our server, which passes it to OpenAI's speech-to-text service and returns the text to the message field. You review the text before sending it. The audio is not stored or logged by Helio.</li>
+  <li><strong>Voice chat</strong> is a live call with a voice model from OpenAI. Our server sets the call up; the audio then streams directly between your device and OpenAI. OpenAI's model does not have access to your data. When you ask about your habits, the question is answered by Claude through our server as above, and the answer is passed back to OpenAI to be spoken — so OpenAI receives the text of those answers as well as your voice. Helio does not record the call audio. The on-screen captions of the call are saved into the conversation.</li>
 </ul>
-<p>Habit titles, note text and daily logs are never sent to this channel.</p>
 
-<h2>7. Widgets, Apple Watch and Mac</h2>
+<h3>Your conversation history</h3>
+<p>Conversations are saved to your account so you can come back to them, and you can delete any of them in the app at any time. An account keeps at most 20 conversations: when a new one would exceed that, the oldest conversation that is not pinned is deleted automatically. The number of voice calls whose captions are kept is also limited by plan, and older call captions are removed after each new call.</p>
+
+<h3>Reporting an answer</h3>
+<p>If you report an AI message as objectionable, a copy of that message's text, the reason you chose and your user identifier are stored in a separate moderation record, and a notice with an excerpt is sent to the developer channel (section 9). That record is kept after the conversation or the account is deleted, because its purpose is moderation.</p>
+
+<h3>How the AI providers handle it</h3>
+<p>Anthropic and OpenAI process these requests as our service providers under their commercial API terms, which state that data sent through their APIs is not used to train their models. Each provider may keep request data for a limited period for safety and abuse monitoring, as set out in their own policies: <a href="https://www.anthropic.com/legal/privacy">Anthropic</a>, <a href="https://openai.com/policies/privacy-policy/">OpenAI</a>. Helio has no separate zero-retention arrangement with either.</p>
+
+<h2>5. "Discuss with AI" in Settings</h2>
+<p>Settings also offers two rows that hand a summary of your habit data to Claude or ChatGPT so you can talk it through in an assistant you already use.</p>
+<ul>
+  <li>The first time you use each service, a dialog explains what is about to be shared and asks you to confirm. The confirmation is remembered on that device.</li>
+  <li>The summary is built on your device: how many habits and logged days you have, average scores and recent trend, the last few days with the names of what you completed, per-habit completion rates and streaks, and totals by time of day and weekday. <strong>Your notes are not included.</strong></li>
+  <li>The summary is copied to your clipboard and <code>claude.ai</code> or <code>chatgpt.com</code> opens in your browser with the text prefilled. Nothing is submitted for you.</li>
+  <li>Our server counts how many times a month you use each service, to apply your plan's limit. It receives no part of the summary.</li>
+</ul>
+<p>That conversation happens in your own account with that service, and what happens to the text afterwards is governed by your agreement with them.</p>
+
+<h2>6. Subscriptions and purchases</h2>
+<p>Habit tracking, widgets, Apple&nbsp;Watch and Mac are free. Paid plans raise the limits on the AI assistant. Subscriptions are sold through the App&nbsp;Store: Apple handles payment, billing, renewal, cancellation and refunds, and Helio never receives your card or payment details. You manage or cancel a subscription in your Apple ID settings.</p>
+<ul>
+  <li>When you buy or restore, the app sends Apple's signed transaction to our server, which verifies Apple's signature and records the product, the original transaction identifier, the expiry and the account it belongs to.</li>
+  <li>With each purchase the app gives Apple an identifier derived one-way from your user identifier, so a purchase can be matched back to your account. It cannot be turned back into your user identifier.</li>
+  <li>Apple sends our server notifications when a subscription renews, lapses or is refunded, so your plan stays correct.</li>
+</ul>
+<p>The app contains the RevenueCat purchases SDK, but it is not switched on in this version and sends nothing. This policy will be updated before it is.</p>
+
+<h2>7. Analytics</h2>
+<p>The iPhone app includes Firebase Analytics (Google). The companions — widgets, Apple&nbsp;Watch, Mac — contain no analytics.</p>
+<ul>
+  <li><strong>Events the app sends</strong> describe how the app is used: moving through the first-launch intro and the tutorial, creating and deleting habits, logging a day, opening, completing or dismissing the paywall, redeeming a code, sending an AI message (and whether it had a photo), an AI request being refused (for example by a limit), and viewing an insight. Parameters are counts or short fixed keywords.</li>
+  <li><strong>User properties</strong>: your plan tier, app language, a rough bucket of how many habits you have, and whether you are signed in.</li>
+  <li><strong>Automatic data</strong> collected by the Firebase SDK itself: an app-instance identifier generated by Firebase (not the advertising identifier), app version, device model and OS version, sessions, and an approximate region that Google derives from your IP address.</li>
+</ul>
+<p>Habit names, notes, AI conversations and anything else you type are never sent to analytics. Your user identifier is not set as the analytics user ID.</p>
+<p><strong>Apple Search Ads attribution.</strong> On first launch the app asks Apple's AdServices framework for an attribution token — a short-lived token Apple issues so that an install can be credited to an Apple Search Ads campaign — and stores it with your account. It is not the advertising identifier and involves no tracking prompt.</p>
+<p><strong>You can switch this off</strong> in <em>Settings → Share anonymous usage analytics</em>. While it is off, Firebase Analytics collection stops and the attribution token is not collected. The switch is on by default.</p>
+<p>Helio does not use the advertising identifier (IDFA), shows no App Tracking Transparency prompt, and does not track you across other companies' apps or websites.</p>
+
+<h2>8. Crash reports and error diagnostics</h2>
+<p>The app uses Firebase Crashlytics, and it is not affected by the analytics switch. When the app crashes or hits a handled error, Crashlytics records the technical detail — stack trace, app version, device model, OS version — together with your user identifier and a few keys that locate the problem, such as the operation involved, a habit's internal identifier or a date such as <code>2026-09-29</code>. Habit titles, note text and AI conversations are never attached.</p>
+
+<h2>9. The developer channel</h2>
+<p>Because Helio is run by one person, some events are sent to a private Telegram channel that only the developer reads:</p>
+<ul>
+  <li><strong>Errors</strong> — the error description, the operation it came from, and the same identifiers as in section 8, with the app version, iOS version and device model.</li>
+  <li><strong>Crash notices</strong> — a line on the next launch saying the previous session crashed, with app version, iOS version and device model.</li>
+  <li><strong>Account events</strong> — that a sign-in, sign-out, new anonymous session or account deletion happened, with the user identifier.</li>
+  <li><strong>Feedback you send</strong> through <em>Settings → Send Feedback</em> — your message, with your user identifier, app version, iOS version and device model. This is how your message reaches a human.</li>
+  <li><strong>AI message reports</strong> — as described in section 4.</li>
+  <li><strong>Server alerts and a weekly summary</strong> — operational alerts from our Cloud Functions and a weekly report of aggregate numbers (for example how many accounts were active). These contain no user content and no per-user identifiers.</li>
+</ul>
+<p>Habit titles, notes, daily logs and AI conversations are never sent to this channel, except the text of an AI message you choose to report.</p>
+
+<h2>10. Widgets, Apple Watch and Mac</h2>
 <p>The home screen widgets and the Apple Watch app never talk to a server. They read the shared on-device container described in section 3, and any tap you make there is handed back to the iPhone app, which records it. The Watch receives its copy from your iPhone directly, over Apple's device-to-device connection.</p>
-<p>The Mac companion is a full client and reads and writes the same Firestore data as the iPhone, under the account you signed in with.</p>
+<p>The Mac companion is a full client and reads and writes the same Firestore data as the iPhone, under the account you signed in with. It contains no analytics.</p>
 
-<h2>8. Notifications</h2>
+<h2>11. Notifications</h2>
 <p>Habit reminders are local notifications scheduled on your device by iOS. There is no push service, no device token, and nothing about your reminders is sent anywhere.</p>
 
-<h2>9. "Discuss with AI" in Settings</h2>
-<p>Settings offers two rows that hand a summary of your habit data to Claude or to ChatGPT so you can talk it through with an assistant you already use. This is entirely opt-in, and it works like this:</p>
-<ul>
-  <li>The first time you use each service, a dialog explains what is about to be shared and asks you to confirm. Nothing is prepared or opened until you do. The confirmation is remembered on that device only.</li>
-  <li>The summary is built on your device from data already in the app: how many habits you have, how many days you have logged, your average scores and recent trend, the last few days with the titles of what you completed, per-habit completion rates and streaks, and totals by time of day and weekday. <strong>Your notes are not included.</strong></li>
-  <li>The summary is copied to your clipboard, and the app then opens <code>claude.ai</code> or <code>chatgpt.com</code> in your browser with the text prefilled. Nothing is submitted for you — you review it and press send.</li>
-</ul>
-<p>Helio sends nothing to Anthropic or OpenAI itself. The conversation happens in your own account with that service, and what happens to the text afterwards is governed by your agreement with them.</p>
+<h2>12. App integrity and update check</h2>
+<p>Requests to our Cloud Functions are checked with Firebase App Check, which uses Apple's App Attest to confirm they come from a genuine copy of the app. To tell you when a newer version is available, the app occasionally asks Apple's public App&nbsp;Store lookup service about its own bundle identifier. Nothing about you is included in that request.</p>
 
-<h2>10. The AI assistant tab — not active in this version</h2>
-<p>The app binary contains an AI assistant feature: a tab with insight cards about your own history and a chat that can answer questions about it. It is disabled by a server-side switch, and both of its halves default to off. While the switch is off the tab is not merely locked — it is absent, there is no way to reach it, and the server refuses every request regardless of what the app asks. In this version, no habit data is sent to Anthropic or to any AI provider by the app.</p>
-<p>It is described here because the code paths are present and we would rather state plainly what they would do. If the feature is ever switched on, it would work like this: your request and the relevant slice of your own data — habits, logged days, and notes on the days in question — would be sent from our Cloud Function to Anthropic's API to produce an answer. It would be read-only: the assistant can look at your data but has no ability to log, change or delete anything. This policy and the App&nbsp;Store privacy disclosure will be updated before that switch is turned on, not after.</p>
-
-<h2>11. Update check</h2>
-<p>To tell you when a newer version is available, the app occasionally asks Apple's public App&nbsp;Store lookup service about its own bundle identifier. Nothing about you is included in that request.</p>
-
-<h2>12. What Helio does not do</h2>
+<h2>13. What Helio does not do</h2>
 <ul>
   <li>No advertising, no ad networks, no sponsored content.</li>
-  <li>No sale of data, and no sharing of data for anyone else's marketing.</li>
-  <li>No third-party tracking, attribution or profiling SDKs. The only external software in the app is Google's Firebase and Google Sign-In.</li>
-  <li>No location, no HealthKit or health data, no contacts, no photos, no microphone, no camera. The app requests none of these permissions.</li>
-  <li>No marketing email. Your address, if the app ever receives one, is used for sign-in and for replying to you.</li>
-  <li>No purchases or subscriptions in this version.</li>
+  <li>No sale of personal data, and no sharing of it for anyone else's marketing.</li>
+  <li>No tracking across other companies' apps and websites, and no data brokers.</li>
+  <li>No location access (only the approximate region Google derives for analytics), no HealthKit or health data, no contacts. The only permissions the app asks for are notifications (for reminders), the camera and the microphone (for the AI assistant).</li>
+  <li>No marketing email. Your address, if the app receives one, is used for sign-in and for replying to you.</li>
 </ul>
 
-<h2>13. Who processes your data</h2>
+<h2>14. Who processes your data</h2>
 <ul>
-  <li><strong>Google</strong> — Firebase Authentication, Cloud Firestore, Analytics, Crashlytics, App Check and Cloud Functions host and process the data described above. See the <a href="https://firebase.google.com/support/privacy">Firebase privacy documentation</a> and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. If you use Google Sign-In, Google also acts as your identity provider.</li>
-  <li><strong>Apple</strong> — if you use Sign in with Apple. See the <a href="https://www.apple.com/legal/privacy/">Apple Privacy Policy</a>.</li>
-  <li><strong>Telegram</strong> — carries the developer error and feedback channel described in section 6. See the <a href="https://telegram.org/privacy">Telegram Privacy Policy</a>.</li>
-  <li><strong>Anthropic and OpenAI</strong> — only if you use "Discuss with AI" (section 9), and then in your own account with them, not ours.</li>
+  <li><strong>Google</strong> — Firebase Authentication, Cloud Firestore, Cloud Functions, Analytics, Crashlytics and App Check host and process the data described above; Google Sign-In if you use it. See the <a href="https://firebase.google.com/support/privacy">Firebase privacy documentation</a> and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</li>
+  <li><strong>Anthropic</strong> — generates AI chat answers and insights, and processes photos you attach (section 4). See <a href="https://www.anthropic.com/legal/privacy">Anthropic's privacy information</a>.</li>
+  <li><strong>OpenAI</strong> — transcribes dictation and runs voice chat (section 4). See the <a href="https://openai.com/policies/privacy-policy/">OpenAI Privacy Policy</a>.</li>
+  <li><strong>Apple</strong> — App&nbsp;Store purchases and subscription billing, Sign in with Apple, App Attest and Search Ads attribution. See the <a href="https://www.apple.com/legal/privacy/">Apple Privacy Policy</a>.</li>
+  <li><strong>Telegram</strong> — carries the developer channel described in section 9. See the <a href="https://telegram.org/privacy">Telegram Privacy Policy</a>.</li>
 </ul>
-<p>These providers operate globally, so your data may be stored and processed outside your country, including in the United States. Traffic between the app and these services is encrypted in transit.</p>
+<p>These providers operate globally, so your data may be stored and processed outside your country, including in the United States. Traffic between the app, our server and these services is encrypted in transit.</p>
 
-<h2>14. Deleting your data</h2>
-<p>In the app: <strong>Settings → Account → Delete Account</strong>. If you are signed in, iOS asks you to authenticate once more to confirm it is you.</p>
-<p>This deletes your habits, daily logs, notes, votes, bookmarks and settings, the AI documents in section 3 if any exist, and then the sign-in account itself. <strong>It is permanent and there is no backup to restore from.</strong> The app then starts again as a new anonymous user.</p>
-<p>Two things it does not reach, because they are stored separately by Google and not filed under your habit data: analytics records and crash reports. If you want those removed as well, email us and we will delete what those tools allow. Uninstalling the app removes every local copy from that device.</p>
-<p>Data you have not deleted is kept for as long as the account exists, because it is the app's content — a habit log from two years ago is the point of the app. Error and feedback messages in the developer channel are kept only as long as they are useful for fixing the problem.</p>
+<h2>15. How long data is kept</h2>
+<ul>
+  <li><strong>Your habits, logs, notes and settings</strong> are kept for as long as the account exists — a log from two years ago is the point of the app — until you delete them or the account.</li>
+  <li><strong>AI conversations</strong> are kept until you delete them, subject to the 20-conversation limit and the voice-caption limit in section 4. Insight cards are replaced when new ones are generated.</li>
+  <li><strong>Audio and photos</strong> are not stored by Helio; they exist only for the duration of the request. Anthropic and OpenAI may retain request data for a limited period under their own policies (section 4).</li>
+  <li><strong>Analytics and crash reports</strong> are kept by Google according to Firebase's retention settings.</li>
+  <li><strong>Messages in the developer channel</strong> are kept only as long as they are useful for fixing the problem or answering you.</li>
+</ul>
 
-<h2>15. Your rights</h2>
-<p>Depending on where you live — in the European Economic Area, the United Kingdom, Switzerland, Ukraine, California and elsewhere — you have the right to ask what personal data is held about you, to obtain a copy, to have it corrected, to have it deleted, to object to or restrict its processing, and to withdraw consent you previously gave. Deletion is available immediately in the app; for anything else, write to <a href="mailto:alexslkmain@gmail.com">alexslkmain@gmail.com</a> and it will be handled. You also have the right to complain to your local data protection authority.</p>
-<p>The legal basis for processing is the performance of the service you asked for (storing and syncing your habits), your consent where the app asks for it explicitly (notifications, "Discuss with AI"), and a legitimate interest in keeping the app working (crash and error diagnostics).</p>
+<h2>16. Deleting your data</h2>
+<p>In the app: <strong>Settings → Account → Delete Account</strong>. If you are signed in, you are asked to authenticate once more to confirm it is you.</p>
+<p>This deletes your habits, daily logs, notes, votes, bookmarks and settings, your AI conversations and insights, your AI usage counters and plan record, and then the sign-in account itself. <strong>It is permanent and there is no backup to restore from.</strong> The app then starts again as a new anonymous user. Deleting the account does not cancel an App&nbsp;Store subscription — cancel it in your Apple ID settings.</p>
+<p>What deletion does not reach:</p>
+<ul>
+  <li>The record of an App&nbsp;Store subscription is detached from your account but kept — the product, Apple's transaction identifier and its expiry — so that the subscription can be restored to a new account and cannot be misused across accounts.</li>
+  <li>Moderation records of AI messages you reported (section 4).</li>
+  <li>Analytics and crash reports, which Google stores separately, and messages already in the developer channel. Email us if you want these removed and we will delete what those tools allow.</li>
+  <li>Data already processed by Anthropic or OpenAI, which is subject to their retention policies.</li>
+</ul>
+<p>Uninstalling the app removes every local copy from that device. If you would rather not delete in the app, email us and we will do it for you.</p>
 
-<h2>16. Children</h2>
+<h2>17. Your rights</h2>
+<p>Depending on where you live — in the European Economic Area, the United Kingdom, Switzerland, Ukraine, California and elsewhere — you have the right to ask what personal data is held about you, to obtain a copy, to have it corrected, to have it deleted, to object to or restrict its processing, and to withdraw consent you previously gave. Deletion is available immediately in the app; for anything else, write to <a href="mailto:alexslkmain@gmail.com">alexslkmain@gmail.com</a>. You also have the right to complain to your local data protection authority.</p>
+<p>The legal basis for processing is: performance of the service you asked for (storing and syncing your habits, running the AI features you use, managing your subscription); your consent where the app asks for it (the AI assistant, "Discuss with AI", notifications, camera and microphone); and a legitimate interest in keeping the app working and understanding how it is used (crash and error diagnostics, and analytics, which you can switch off).</p>
+
+<h2>18. Children</h2>
 <p>Helio is not directed at children. It does not knowingly collect personal data from children under 13, or under the higher age of consent that applies in some countries. If you believe a child has provided personal data through the app, write to us and it will be deleted.</p>
 
-<h2>17. Changes to this policy</h2>
-<p>If this policy changes, the effective date at the top of the page changes with it, and the change will be made before the behaviour it describes ships — not after.</p>
+<h2>19. Changes to this policy</h2>
+<p>If this policy changes, the effective date at the top of the page changes with it, and the change is made before the behaviour it describes ships — not after.</p>
 
-<h2>18. Contact</h2>
+<h2>20. Contact</h2>
 <p><a href="mailto:alexslkmain@gmail.com">alexslkmain@gmail.com</a></p>
 
 <hr>
 
 <footer>
-  <p><a href="index.html">Support</a> &nbsp;·&nbsp; <a href="mailto:alexslkmain@gmail.com">alexslkmain@gmail.com</a></p>
-  <p>Effective 2 August 2026.</p>
+  <p><a href="index.html">Support</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a> &nbsp;·&nbsp; <a href="mailto:alexslkmain@gmail.com">alexslkmain@gmail.com</a></p>
+  <p>Effective 29 September 2026.</p>
 </footer>
 
 </body>
